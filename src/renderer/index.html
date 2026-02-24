@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<title>Firyxis Launcher</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0c;--surface:#111116;--card:#16161e;--card2:#1c1c26;
+  --border:rgba(255,255,255,0.07);--accent:#ff3c00;--accent2:#ff7a3c;
+  --text:#e8e8f0;--muted:#6b6b80;--success:#00e676;--warning:#ffd740;
+  --error:#f44336;--info:#2196f3;--sidebar-w:220px;
+}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;user-select:none}
+
+/* ── Titlebar ── */
+#titlebar{height:38px;background:#060608;display:flex;align-items:center;justify-content:space-between;padding:0 16px;-webkit-app-region:drag;flex-shrink:0;border-bottom:1px solid var(--border)}
+.title-logo{font-family:'Bebas Neue';font-size:18px;letter-spacing:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.title-version{font-size:10px;color:var(--muted);letter-spacing:1px;margin-left:8px;-webkit-text-fill-color:var(--muted)}
+.title-right{display:flex;align-items:center;gap:8px;-webkit-app-region:no-drag}
+.title-btn{width:28px;height:28px;border-radius:4px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.title-btn:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+.title-btn.close:hover{background:#c0392b;color:#fff}
+
+/* ── Update banner ── */
+#update-banner{display:none;background:linear-gradient(90deg,#1a2a1a,#0f1f0f);border-bottom:1px solid rgba(0,230,118,0.3);padding:8px 20px;align-items:center;gap:12px;flex-shrink:0}
+#update-banner.visible{display:flex}
+.update-dot{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.update-text{flex:1;font-size:13px;font-weight:600;color:var(--success)}
+.update-text span{color:var(--muted);font-weight:400;font-size:12px;margin-left:8px}
+.btn-update{padding:5px 16px;border-radius:5px;border:1px solid var(--success);background:transparent;color:var(--success);cursor:pointer;font-family:'Rajdhani';font-size:13px;font-weight:700;letter-spacing:1px;transition:all .15s}
+.btn-update:hover{background:var(--success);color:#000}
+.btn-dismiss{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px}
+
+/* ── Layout ── */
+#app{display:flex;flex:1;overflow:hidden}
+
+/* ── Sidebar ── */
+#sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;padding:20px 0;overflow:hidden}
+.sidebar-section{padding:0 12px;margin-bottom:8px}
+.sidebar-label{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:6px 8px;margin-bottom:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);transition:all .15s;border:none;background:none;width:100%;text-align:left;letter-spacing:.5px}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+.nav-item.active{background:rgba(255,60,0,0.15);color:var(--accent2);border-left:2px solid var(--accent)}
+.sidebar-divider{height:1px;background:var(--border);margin:12px 20px}
+
+/* ── Queue panel ── */
+#queue-panel{border-top:1px solid var(--border);padding:12px;overflow-y:auto;max-height:280px}
+.queue-title{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.queue-count{background:var(--accent);color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;display:none}
+.queue-count.visible{display:block}
+.queue-empty{font-size:12px;color:var(--muted);font-family:'Inter';text-align:center;padding:8px 0;opacity:.5}
+.queue-item{background:var(--card);border-radius:6px;padding:8px 10px;margin-bottom:6px;border:1px solid var(--border)}
+.queue-item-name{font-size:12px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;gap:4px}
+.queue-item-name-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.queue-status-badge{font-size:9px;letter-spacing:1px;padding:2px 5px;border-radius:3px;text-transform:uppercase;flex-shrink:0}
+.badge-waiting{background:rgba(255,215,64,.15);color:var(--warning)}
+.badge-installing{background:rgba(255,60,0,.15);color:var(--accent2)}
+.badge-done{background:rgba(0,230,118,.15);color:var(--success)}
+.badge-error{background:rgba(244,67,54,.15);color:var(--error)}
+.badge-cancelled{background:rgba(107,107,128,.15);color:var(--muted)}
+.mini-progress{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden;margin-top:4px}
+.mini-fill{height:100%;border-radius:2px;transition:width .3s ease;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.mini-fill.done{background:var(--success)}
+.mini-fill.error{background:var(--error)}
+.mini-fill.cancelled{background:var(--muted)}
+.progress-label{font-size:10px;color:var(--muted);margin-top:3px;font-family:'Inter';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;justify-content:space-between}
+.queue-cancel-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0 2px;flex-shrink:0;line-height:1}
+.queue-cancel-btn:hover{color:var(--error)}
+
+/* ── Main ── */
+#main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:16px;flex-shrink:0;flex-wrap:wrap}
+#page-title{font-family:'Bebas Neue';font-size:26px;letter-spacing:2px;color:var(--text);flex-shrink:0}
+.search-wrap{flex:1;max-width:360px;position:relative}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+#search{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Rajdhani';font-size:14px;padding:9px 12px 9px 36px;outline:none;transition:border-color .2s}
+#search:focus{border-color:var(--accent)}
+#search::placeholder{color:var(--muted)}
+.category-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.cat-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Rajdhani';font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.cat-tab:hover{border-color:var(--accent);color:var(--text)}
+.cat-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* ── Grid ── */
+#content{flex:1;overflow-y:auto;padding:24px 28px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent}
+#content::-webkit-scrollbar{width:5px}
+#content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+.store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+
+/* ── Card ── */
+.app-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:transform .18s,border-color .18s,box-shadow .18s;animation:fadeIn .3s ease both}
+.app-card:hover{transform:translateY(-3px);border-color:rgba(255,60,0,.35);box-shadow:0 8px 32px rgba(255,60,0,.1)}
+.app-card.installed{border-color:rgba(0,230,118,.2)}
+.app-card.installed:hover{border-color:rgba(0,230,118,.5);box-shadow:0 8px 28px rgba(0,230,118,.08)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card-img{width:100%;height:130px;background:linear-gradient(135deg,#1a1a24,#0e0e18);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;cursor:pointer}
+.card-img img{max-height:72px;max-width:78%;object-fit:contain;filter:drop-shadow(0 4px 12px rgba(0,0,0,.5));transition:transform .2s}
+.app-card:hover .card-img img{transform:scale(1.06)}
+.card-cat-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);border:1px solid var(--border);border-radius:4px;font-size:9px;letter-spacing:1px;color:var(--muted);padding:2px 6px;text-transform:uppercase}
+.installed-badge{position:absolute;top:8px;left:8px;background:rgba(0,230,118,.15);border:1px solid rgba(0,230,118,.4);border-radius:4px;font-size:9px;letter-spacing:1px;color:var(--success);padding:2px 6px;text-transform:uppercase;display:none}
+.app-card.installed .installed-badge{display:block}
+
+.card-body{padding:12px 14px}
+.card-name{font-size:16px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;color:var(--text);display:flex;align-items:center;gap:6px}
+.install-method{font-size:9px;letter-spacing:1px;padding:1px 5px;border-radius:3px;text-transform:uppercase;font-weight:700}
+.method-url{background:rgba(33,150,243,.2);color:var(--info)}
+.method-cmd{background:rgba(255,60,0,.15);color:var(--accent2)}
+.card-desc{font-size:12px;color:var(--muted);line-height:1.5;font-family:'Inter';font-weight:300;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{display:flex;gap:10px;margin-bottom:10px}
+.meta-item{font-size:10px;color:var(--muted)}
+.meta-item b{color:var(--text)}
+
+/* ── Progress bar on card ── */
+.card-progress{margin-bottom:10px;display:none}
+.card-progress.visible{display:block}
+.progress-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.progress-fill{height:100%;border-radius:2px;transition:width .4s ease;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.progress-fill.done{background:var(--success)}
+.progress-fill.err{background:var(--error)}
+.progress-fill.cancelled{background:var(--muted)}
+.progress-text{font-size:10px;color:var(--muted);font-family:'Inter';display:flex;justify-content:space-between}
+
+/* ── Buttons ── */
+.card-footer{display:flex;gap:7px}
+.btn{padding:8px 12px;border-radius:6px;border:none;cursor:pointer;font-family:'Rajdhani';font-size:13px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;flex:1;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.btn-install{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.btn-install:hover:not(:disabled){filter:brightness(1.15);transform:scale(1.02)}
+
+.btn-launch{background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.4);color:var(--success)}
+.btn-launch:hover:not(:disabled){background:rgba(0,230,118,.22)}
+
+.btn-cancel{background:rgba(255,67,54,.1);border:1px solid rgba(244,67,54,.35);color:var(--error)}
+.btn-cancel:hover{background:rgba(244,67,54,.2)}
+
+.btn-uninstall{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--muted)}
+.btn-uninstall:hover{background:rgba(244,67,54,.1);border-color:rgba(244,67,54,.3);color:var(--error)}
+
+.btn-sm{flex:0;padding:8px 10px;background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-sm:hover{background:rgba(255,255,255,.06);color:var(--text)}
+
+/* ── Loading skeleton ── */
+.skeleton{background:linear-gradient(90deg,var(--card) 25%,var(--card2) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);grid-column:1/-1}
+.empty-state h3{font-family:'Bebas Neue';font-size:26px;letter-spacing:2px;margin-bottom:8px;color:var(--text)}
+
+/* ── Modal ── */
+#modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+#modal-overlay.open{display:flex}
+#modal{background:var(--card);border:1px solid rgba(255,255,255,.1);border-radius:14px;width:520px;max-width:92vw;overflow:hidden;animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{padding:20px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Bebas Neue';font-size:22px;letter-spacing:1.5px}
+.modal-installed-chip{font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:4px;background:rgba(0,230,118,.15);color:var(--success);border:1px solid rgba(0,230,118,.3);margin-left:10px;display:none}
+.modal-installed-chip.visible{display:inline-block}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:18px 22px}
+.modal-img-wrap{background:linear-gradient(135deg,#1a1a24,#0e0e18);border-radius:8px;height:110px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.modal-img-wrap img{max-height:65px;max-width:75%;object-fit:contain}
+.modal-desc{font-family:'Inter';font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.modal-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.modal-info{flex:1;min-width:100px;background:var(--surface);border-radius:6px;padding:10px 12px}
+.modal-info-label{font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:2px}
+.modal-info-val{font-size:14px;font-weight:700}
+.modal-install-type{background:var(--surface);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;font-family:'Inter'}
+.modal-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tag{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:3px 8px;color:var(--muted)}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── Confirm dialog ── */
+#confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+#confirm-overlay.open{display:flex}
+#confirm-box{background:var(--card);border:1px solid rgba(244,67,54,.3);border-radius:12px;width:380px;max-width:90vw;padding:24px;animation:modalIn .15s ease;text-align:center}
+.confirm-icon{font-size:32px;margin-bottom:12px}
+.confirm-title{font-family:'Bebas Neue';font-size:20px;letter-spacing:1px;margin-bottom:8px}
+.confirm-msg{font-size:13px;color:var(--muted);font-family:'Inter';line-height:1.5;margin-bottom:20px}
+.confirm-actions{display:flex;gap:10px;justify-content:center}
+.btn-confirm-yes{padding:10px 24px;border-radius:6px;border:none;background:var(--error);color:#fff;cursor:pointer;font-family:'Rajdhani';font-size:14px;font-weight:700;letter-spacing:1px;transition:filter .15s}
+.btn-confirm-yes:hover{filter:brightness(1.15)}
+.btn-confirm-no{padding:10px 24px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;font-family:'Rajdhani';font-size:14px;font-weight:700;letter-spacing:1px;transition:background .15s}
+.btn-confirm-no:hover{background:rgba(255,255,255,.06)}
+
+/* ── Toast ── */
+#toast-container{position:fixed;bottom:32px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}
+.toast{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;min-width:260px;max-width:340px;display:flex;align-items:flex-start;gap:10px;animation:toastIn .25s ease;border-left:3px solid var(--accent);pointer-events:all}
+.toast.success{border-left-color:var(--success)}
+.toast.error{border-left-color:var(--error)}
+.toast.info{border-left-color:var(--info)}
+.toast.warning{border-left-color:var(--warning)}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.toast-icon{font-size:18px;line-height:1.2}
+.toast-content{flex:1}
+.toast-title{font-weight:700;font-size:13px;margin-bottom:2px}
+.toast-msg{font-size:11px;color:var(--muted);font-family:'Inter';line-height:1.4}
+
+/* ── Statusbar ── */
+#statusbar{height:26px;background:#060608;border-top:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:20px;flex-shrink:0}
+.status-item{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--success);box-shadow:0 0 5px var(--success)}
+#scanning-indicator{display:none;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+#scanning-indicator.visible{display:flex}
+.spin-small{width:10px;height:10px;border:1.5px solid rgba(255,255,255,.15);border-top-color:var(--accent2);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="titlebar">
+  <div style="display:flex;align-items:baseline;gap:2px">
+    <span class="title-logo">FIRYXIS LAUNCHER</span>
+    <span class="title-version" id="version-label">v1.0.0</span>
+  </div>
+  <div class="title-right">
+    <button class="title-btn" onclick="window.launcher.minimize()">&#x2212;</button>
+    <button class="title-btn" onclick="window.launcher.maximize()">&#x25A1;</button>
+    <button class="title-btn close" onclick="window.launcher.close()">&#x2715;</button>
+  </div>
+</div>
+
+<div id="update-banner">
+  <div class="update-dot"></div>
+  <div class="update-text">Mise à jour disponible : <strong id="update-new-ver"></strong><span id="update-cur-ver"></span></div>
+  <button class="btn-update" id="btn-do-update">Télécharger</button>
+  <button class="btn-dismiss" onclick="document.getElementById('update-banner').classList.remove('visible')">&#x2715;</button>
+</div>
+
+<div id="app">
+  <aside id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Navigation</div>
+      <button class="nav-item active">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        Magasin
+      </button>
+      <button class="nav-item" onclick="checkUpdateManual()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Vérifier les MAJ
+      </button>
+      <button class="nav-item" onclick="rescanAllApps()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Scanner les apps
+      </button>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section"><div class="sidebar-label">Catégories</div></div>
+    <div id="sidebar-cats" class="sidebar-section"></div>
+    <div id="queue-panel" style="margin-top:auto">
+      <div class="queue-title">
+        File d'attente
+        <span class="queue-count" id="queue-count">0</span>
+      </div>
+      <div id="queue-list"><div class="queue-empty">Aucune installation</div></div>
+    </div>
+  </aside>
+
+  <div id="main">
+    <div id="topbar">
+      <span id="page-title">MAGASIN</span>
+      <div class="search-wrap">
+        <svg class="search-icon" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="search" type="text" placeholder="Rechercher une application..." oninput="filterApps()"/>
+      </div>
+      <div class="category-tabs" id="cat-tabs"></div>
+    </div>
+
+    <div id="content"><div class="store-grid" id="grid"></div></div>
+
+    <div id="statusbar">
+      <div class="status-item"><div class="status-dot"></div> En ligne</div>
+      <div class="status-item" id="app-count">—</div>
+      <div class="status-item" id="installed-count" style="color:var(--success)"></div>
+      <div id="scanning-indicator" class="status-item" style="margin-left:auto">
+        <div class="spin-small"></div> Scan en cours...
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal détail -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center">
+        <span class="modal-title" id="modal-title"></span>
+        <span class="modal-installed-chip" id="modal-installed-chip">✓ INSTALLÉ</span>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-img-wrap"><img id="modal-img" src="" alt=""/></div>
+      <p class="modal-desc" id="modal-desc"></p>
+      <div class="modal-row" id="modal-row"></div>
+      <div class="modal-install-type" id="modal-install-type"></div>
+      <div class="modal-tags" id="modal-tags"></div>
+      <div class="modal-actions" id="modal-actions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm désinstall -->
+<div id="confirm-overlay">
+  <div id="confirm-box">
+    <div class="confirm-icon">🗑</div>
+    <div class="confirm-title" id="confirm-title">Désinstaller ?</div>
+    <p class="confirm-msg" id="confirm-msg"></p>
+    <div class="confirm-actions">
+      <button class="btn-confirm-no" onclick="closeConfirm()">Annuler</button>
+      <button class="btn-confirm-yes" id="confirm-yes-btn">Désinstaller</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════════════════
+let allApps = [];
+let activeCategory = 'Tous';
+let installedState = {};   // { appId: true|false }
+let queue = [];            // { id, name, status, progress, statusText }
+let isProcessingQueue = false;
+
+// ════════════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════════════
+async function init() {
+  allApps = await window.launcher.getApps();
+  const ver = await window.launcher.getVersion();
+  document.getElementById('version-label').textContent = 'v' + ver;
+  buildCategoryUI();
+  renderGrid(filterCurrent());
+  listenProgress();
+  listenUpdate();
+  // Scanner les apps installées en arrière-plan
+  scanInstalledApps();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SCAN INSTALLATION
+// ════════════════════════════════════════════════════════════════════════════
+async function scanInstalledApps() {
+  document.getElementById('scanning-indicator').classList.add('visible');
+  try {
+    installedState = await window.launcher.checkAllInstalled();
+  } catch(e) {
+    installedState = {};
+  }
+  document.getElementById('scanning-indicator').classList.remove('visible');
+  updateInstalledCount();
+  renderGrid(filterCurrent());
+}
+
+async function rescanAllApps() {
+  showToast('info', '🔍', 'Scan en cours', 'Détection des applications installées...');
+  await scanInstalledApps();
+  showToast('success', '✅', 'Scan terminé', `${Object.values(installedState).filter(Boolean).length} app(s) détectée(s).`);
+}
+
+function updateInstalledCount() {
+  const count = Object.values(installedState).filter(Boolean).length;
+  const el = document.getElementById('installed-count');
+  el.textContent = count > 0 ? `✓ ${count} installée${count>1?'s':''}` : '';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CATEGORIES
+// ════════════════════════════════════════════════════════════════════════════
+function buildCategoryUI() {
+  const cats = ['Tous', ...new Set(allApps.map(a => a.category))];
+  document.getElementById('cat-tabs').innerHTML = cats.map(c =>
+    `<button class="cat-tab ${c==='Tous'?'active':''}" onclick="selectCategory('${c}')">${c}</button>`
+  ).join('');
+  document.getElementById('sidebar-cats').innerHTML = cats.slice(1).map(c =>
+    `<button class="nav-item" onclick="selectCategory('${c}')">· ${c}</button>`
+  ).join('');
+}
+
+function selectCategory(cat) {
+  activeCategory = cat;
+  document.querySelectorAll('.cat-tab').forEach(b => b.classList.toggle('active', b.textContent === cat));
+  filterApps();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// FILTER & RENDER
+// ════════════════════════════════════════════════════════════════════════════
+function filterApps() { renderGrid(filterCurrent()); }
+
+function filterCurrent() {
+  const q = document.getElementById('search').value.toLowerCase();
+  return allApps.filter(a => {
+    const mc = activeCategory === 'Tous' || a.category === activeCategory;
+    const ms = !q || a.name.toLowerCase().includes(q)
+      || a.description.toLowerCase().includes(q)
+      || (a.tags||[]).some(t => t.toLowerCase().includes(q));
+    return mc && ms;
+  });
+}
+
+function renderGrid(apps) {
+  document.getElementById('app-count').textContent = `${apps.length} app${apps.length!==1?'s':''}`;
+  const grid = document.getElementById('grid');
+  if (!apps.length) {
+    grid.innerHTML = `<div class="empty-state"><h3>Aucune application trouvée</h3><p>Essayez une autre recherche.</p></div>`;
+    return;
+  }
+  grid.innerHTML = apps.map((app, i) => buildCard(app, i)).join('');
+}
+
+function buildCard(app, i = 0) {
+  const qi = queue.find(q => q.id === app.id);
+  const isInstalled = installedState[app.id] === true;
+  const isInQueue = qi && (qi.status === 'waiting' || qi.status === 'installing');
+  const isInstalling = qi && qi.status === 'installing';
+  const isDone = qi && qi.status === 'done';
+  const isError = qi && qi.status === 'error';
+  const isCancelled = qi && qi.status === 'cancelled';
+  const progress = qi ? qi.progress : 0;
+  const statusText = qi ? (qi.statusText || '') : '';
+  const showProgress = isInQueue || isInstalling;
+
+  const hasUrl = !!app.downloadUrl;
+  const hasCmd = !!app.installCommand;
+  const method = hasUrl
+    ? `<span class="install-method method-url">URL</span>`
+    : hasCmd ? `<span class="install-method method-cmd">CMD</span>` : '';
+
+  // Logique boutons :
+  // Installé : [Lancer] [Désinstaller]
+  // En cours d'installation : [Annuler]
+  // En attente : [En attente · Annuler]
+  // Erreur / annulé / non installé : [Installer]
+  let footerHtml = '';
+  if (isInstalling) {
+    footerHtml = `
+      <button class="btn btn-cancel" onclick="cancelInstall('${app.id}')">✕ Annuler (${progress}%)</button>
+      <button class="btn btn-sm" onclick="openModal('${app.id}')" title="Détails">ℹ</button>`;
+  } else if (isInQueue) {
+    footerHtml = `
+      <button class="btn btn-cancel" style="background:rgba(255,215,64,.08);border-color:rgba(255,215,64,.3);color:var(--warning)" onclick="removeFromQueue('${app.id}')">⏳ Attente · Annuler</button>
+      <button class="btn btn-sm" onclick="openModal('${app.id}')" title="Détails">ℹ</button>`;
+  } else if (isInstalled) {
+    footerHtml = `
+      <button class="btn btn-launch" onclick="launchApp('${app.id}')">▶ Lancer</button>
+      <button class="btn btn-uninstall btn-sm" onclick="confirmUninstall('${app.id}')" title="Désinstaller">🗑</button>
+      <button class="btn btn-sm" onclick="openModal('${app.id}')" title="Détails">ℹ</button>`;
+  } else if (hasUrl || hasCmd) {
+    footerHtml = `
+      <button class="btn btn-install" onclick="addToQueue('${app.id}')">↓ Installer</button>
+      <button class="btn btn-sm" onclick="openModal('${app.id}')" title="Détails">ℹ</button>`;
+  } else {
+    footerHtml = `
+      <button class="btn btn-install" disabled>Non disponible</button>
+      <button class="btn btn-sm" onclick="openModal('${app.id}')" title="Détails">ℹ</button>`;
+  }
+
+  return `<div class="app-card ${isInstalled?'installed':''}" style="animation-delay:${i*35}ms" id="card-${app.id}">
+    <div class="card-img" onclick="openModal('${app.id}')">
+      ${app.image
+        ? `<img src="${app.image}" alt="${app.name}" onerror="this.style.display='none'"/>`
+        : `<span style="font-family:'Bebas Neue';font-size:36px;color:rgba(255,255,255,.1)">${app.name.substring(0,2).toUpperCase()}</span>`}
+      <span class="card-cat-badge">${app.category}</span>
+      <span class="installed-badge">✓ Installé</span>
+    </div>
+    <div class="card-body">
+      <div class="card-name">${app.name}${method}</div>
+      <div class="card-desc">${app.description}</div>
+      <div class="card-meta">
+        ${app.version?`<div class="meta-item">Version <b>${app.version}</b></div>`:''}
+        ${app.size?`<div class="meta-item">Taille <b>${app.size}</b></div>`:''}
+      </div>
+      <div class="card-progress ${showProgress||isError||isCancelled?'visible':''}" id="prog-${app.id}">
+        <div class="progress-bar">
+          <div class="progress-fill ${isInstalled||isDone?'done':''} ${isError?'err':''} ${isCancelled?'cancelled':''}"
+            id="fill-${app.id}" style="width:${progress}%"></div>
+        </div>
+        <div class="progress-text">
+          <span id="ptext-${app.id}">${statusText}</span>
+          <span id="ppct-${app.id}">${progress}%</span>
+        </div>
+      </div>
+      <div class="card-footer" id="footer-${app.id}">${footerHtml}</div>
+    </div>
+  </div>`;
+}
+
+// Mettre à jour une seule carte sans tout re-render
+function refreshCard(id) {
+  const app = allApps.find(a => a.id === id);
+  if (!app) return;
+  const card = document.getElementById(`card-${id}`);
+  if (!card) return;
+  const idx = [...document.getElementById('grid').children].indexOf(card);
+  card.outerHTML = buildCard(app, idx);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// QUEUE
+// ════════════════════════════════════════════════════════════════════════════
+function addToQueue(id) {
+  const app = allApps.find(a => a.id === id);
+  if (!app) return;
+  if (queue.find(q => q.id === id && (q.status === 'waiting' || q.status === 'installing'))) {
+    showToast('warning', '⏳', 'Déjà en file', `${app.name} est déjà dans la file.`);
+    return;
+  }
+  // Nettoyer entrée précédente (erreur/annulée)
+  const old = queue.findIndex(q => q.id === id);
+  if (old !== -1) queue.splice(old, 1);
+
+  queue.push({ id, name: app.name, status: 'waiting', progress: 0, statusText: 'En attente...' });
+  showToast('info', '📥', 'Ajouté à la file', `${app.name} sera installé prochainement.`);
+  renderQueue();
+  refreshCard(id);
+  processQueue();
+}
+
+function removeFromQueue(id) {
+  const idx = queue.findIndex(q => q.id === id && q.status === 'waiting');
+  if (idx !== -1) {
+    queue.splice(idx, 1);
+    renderQueue();
+    refreshCard(id);
+    showToast('info', '✕', 'Retiré de la file', '');
+  }
+}
+
+async function processQueue() {
+  if (isProcessingQueue) return;
+  const next = queue.find(q => q.status === 'waiting');
+  if (!next) { isProcessingQueue = false; return; }
+
+  isProcessingQueue = true;
+  next.status = 'installing';
+  next.progress = 0;
+  renderQueue();
+  refreshCard(next.id);
+
+  const app = allApps.find(a => a.id === next.id);
+  let result;
+  try {
+    if (app.downloadUrl) result = await window.launcher.installUrl(app);
+    else if (app.installCommand) result = await window.launcher.installCommand(app);
+    else result = { success: false, message: 'Aucune méthode.' };
+  } catch(e) {
+    result = { success: false, message: e.message };
+  }
+
+  if (result.cancelled) {
+    next.status = 'cancelled';
+    next.statusText = 'Annulé';
+  } else if (result.success) {
+    next.status = 'done';
+    next.progress = 100;
+    next.statusText = 'Installé !';
+    installedState[next.id] = true;
+    updateInstalledCount();
+    showToast('success', '✅', `${app.name} installé !`, '');
+  } else {
+    next.status = 'error';
+    next.statusText = result.message || 'Erreur';
+    showToast('error', '❌', `Échec : ${app.name}`, result.message);
+  }
+
+  renderQueue();
+  refreshCard(next.id);
+  isProcessingQueue = false;
+  processQueue();
+}
+
+function renderQueue() {
+  const list = document.getElementById('queue-list');
+  const active = queue.filter(q => q.status !== 'cancelled');
+  const countEl = document.getElementById('queue-count');
+  const pending = active.filter(q => q.status === 'waiting' || q.status === 'installing').length;
+  countEl.textContent = pending;
+  countEl.classList.toggle('visible', pending > 0);
+
+  if (!active.length) {
+    list.innerHTML = '<div class="queue-empty">Aucune installation</div>';
+    return;
+  }
+  list.innerHTML = active.map(q => {
+    const cls = {waiting:'badge-waiting',installing:'badge-installing',done:'badge-done',error:'badge-error'}[q.status]||'badge-cancelled';
+    const label = {waiting:'Attente',installing:'En cours',done:'Terminé',error:'Erreur'}[q.status]||'—';
+    const fillCls = q.status==='done'?' done':q.status==='error'?' error':'';
+    const canCancel = q.status === 'waiting';
+    const cancelBtn = canCancel
+      ? `<button class="queue-cancel-btn" onclick="removeFromQueue('${q.id}')" title="Retirer">✕</button>`
+      : q.status === 'installing'
+        ? `<button class="queue-cancel-btn" onclick="cancelInstall('${q.id}')" title="Annuler" style="color:var(--error)">✕</button>`
+        : '';
+    return `<div class="queue-item">
+      <div class="queue-item-name">
+        <span class="queue-item-name-text">${q.name}</span>
+        <span class="queue-status-badge ${cls}">${label}</span>
+        ${cancelBtn}
+      </div>
+      <div class="mini-progress"><div class="mini-fill${fillCls}" style="width:${q.progress}%"></div></div>
+      <div class="progress-label"><span>${q.statusText}</span><span>${q.progress}%</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ANNULATION
+// ════════════════════════════════════════════════════════════════════════════
+async function cancelInstall(id) {
+  const qi = queue.find(q => q.id === id);
+  if (!qi) return;
+
+  // Annuler le téléchargement en cours
+  window.launcher.cancelDownload(id);
+  const result = await window.launcher.cancelInstall(id);
+
+  qi.status = 'cancelled';
+  qi.statusText = 'Annulé';
+  showToast('warning', '✕', 'Installation annulée', qi.name);
+  renderQueue();
+  refreshCard(id);
+
+  // Permettre de relancer la file
+  isProcessingQueue = false;
+  processQueue();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// DÉSINSTALLATION
+// ════════════════════════════════════════════════════════════════════════════
+let confirmCallback = null;
+
+function confirmUninstall(id) {
+  const app = allApps.find(a => a.id === id);
+  if (!app) return;
+  document.getElementById('confirm-title').textContent = `Désinstaller ${app.name} ?`;
+  document.getElementById('confirm-msg').textContent = `Cette action supprimera ${app.name} de votre système. Vous pourrez le réinstaller depuis le launcher.`;
+  confirmCallback = () => doUninstall(id);
+  document.getElementById('confirm-yes-btn').onclick = () => { closeConfirm(); confirmCallback(); };
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  confirmCallback = null;
+}
+
+async function doUninstall(id) {
+  const app = allApps.find(a => a.id === id);
+  if (!app) return;
+  showToast('info', '🗑', `Désinstallation de ${app.name}`, 'Veuillez patienter...');
+
+  // Marquer temporairement
+  installedState[id] = false;
+  updateInstalledCount();
+  refreshCard(id);
+
+  const result = await window.launcher.uninstallApp(app);
+
+  if (result.success) {
+    showToast('success', '✅', `${app.name} désinstallé`, result.message);
+    installedState[id] = false;
+  } else {
+    showToast('error', '❌', `Échec désinstallation`, result.message);
+    // Re-vérifier le vrai état
+    const check = await window.launcher.checkInstalled(app);
+    installedState[id] = check.installed;
+  }
+
+  updateInstalledCount();
+  refreshCard(id);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// LANCEMENT
+// ════════════════════════════════════════════════════════════════════════════
+async function launchApp(id) {
+  const app = allApps.find(a => a.id === id);
+  if (!app) return;
+  const result = await window.launcher.launchApp(app);
+  if (!result.success) showToast('error', '❌', 'Échec du lancement', result.message);
+  else showToast('success', '▶', `${app.name} lancé`, '');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// PROGRESS LISTENER
+// ════════════════════════════════════════════════════════════════════════════
+function listenProgress() {
+  window.launcher.onProgress(({ id, progress, status }) => {
+    const qi = queue.find(q => q.id === id);
+    if (qi) { qi.progress = progress; if (status) qi.statusText = status; }
+
+    const fill = document.getElementById(`fill-${id}`);
+    const ptext = document.getElementById(`ptext-${id}`);
+    const ppct = document.getElementById(`ppct-${id}`);
+    const prog = document.getElementById(`prog-${id}`);
+    const footer = document.getElementById(`footer-${id}`);
+
+    if (fill) fill.style.width = progress + '%';
+    if (ptext && status) ptext.textContent = status;
+    if (ppct) ppct.textContent = progress + '%';
+    if (prog) prog.classList.add('visible');
+    if (footer) {
+      const cancelBtn = footer.querySelector('.btn-cancel');
+      if (cancelBtn) cancelBtn.textContent = `✕ Annuler (${progress}%)`;
+    }
+    renderQueue();
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// UPDATER
+// ════════════════════════════════════════════════════════════════════════════
+function listenUpdate() {
+  window.launcher.onUpdateAvailable(({ remoteVersion, currentVersion, releaseUrl }) => {
+    showUpdateBanner(remoteVersion, currentVersion, releaseUrl);
+  });
+}
+
+function showUpdateBanner(newVer, curVer, url) {
+  document.getElementById('update-new-ver').textContent = 'v' + newVer;
+  document.getElementById('update-cur-ver').textContent = ` (actuellement v${curVer})`;
+  document.getElementById('btn-do-update').onclick = () => window.launcher.openUrl(url);
+  document.getElementById('update-banner').classList.add('visible');
+}
+
+async function checkUpdateManual() {
+  showToast('info', '🔍', 'Vérification...', 'Recherche de mises à jour...');
+  const result = await window.launcher.checkUpdate();
+  if (result.error) showToast('error', '❌', 'Impossible de vérifier', 'Vérifiez votre connexion.');
+  else if (result.hasUpdate) {
+    showUpdateBanner(result.remoteVersion, result.currentVersion, result.releaseUrl);
+    showToast('success', '🚀', 'Mise à jour disponible !', `v${result.remoteVersion} est disponible.`);
+  } else {
+    showToast('success', '✅', 'Launcher à jour !', `v${result.currentVersion} est la dernière version.`);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════════════════════════════════════
+function openModal(id) {
+  const app = allApps.find(a => a.id === id);
+  if (!app) return;
+  const isInstalled = installedState[app.id] === true;
+
+  document.getElementById('modal-title').textContent = app.name;
+  document.getElementById('modal-installed-chip').classList.toggle('visible', isInstalled);
+
+  const img = document.getElementById('modal-img');
+  img.src = app.image || ''; img.style.display = app.image ? 'block' : 'none';
+  document.getElementById('modal-desc').textContent = app.description;
+
+  document.getElementById('modal-row').innerHTML = [
+    app.version  ? `<div class="modal-info"><div class="modal-info-label">Version</div><div class="modal-info-val">${app.version}</div></div>` : '',
+    app.size     ? `<div class="modal-info"><div class="modal-info-label">Taille</div><div class="modal-info-val">${app.size}</div></div>` : '',
+    app.category ? `<div class="modal-info"><div class="modal-info-label">Catégorie</div><div class="modal-info-val">${app.category}</div></div>` : '',
+  ].join('');
+
+  document.getElementById('modal-install-type').innerHTML = app.downloadUrl
+    ? `📥 Installation via téléchargement direct`
+    : app.installCommand
+      ? `⌨ Commande : <code style="color:var(--accent2)">${app.installCommand}</code>`
+      : `⚠ Aucune méthode définie`;
+
+  document.getElementById('modal-tags').innerHTML = [app.category,...(app.tags||[])].map(t=>`<span class="tag">${t}</span>`).join('');
+
+  const qi = queue.find(q => q.id === id);
+  const inQ = qi && (qi.status==='waiting'||qi.status==='installing');
+
+  document.getElementById('modal-actions').innerHTML = isInstalled
+    ? `<button class="btn btn-launch" onclick="launchApp('${app.id}');closeModal()">▶ Lancer</button>
+       <button class="btn btn-uninstall" onclick="closeModal();confirmUninstall('${app.id}')">🗑 Désinstaller</button>
+       ${app.website?`<button class="btn btn-sm" onclick="window.launcher.openUrl('${app.website}')" title="Site">🔗</button>`:''}`
+    : inQ
+      ? `<button class="btn btn-cancel" onclick="cancelInstall('${app.id}');closeModal()">✕ Annuler l'installation</button>`
+      : `<button class="btn btn-install" onclick="addToQueue('${app.id}');closeModal()">↓ Installer</button>
+         ${app.website?`<button class="btn btn-sm" onclick="window.launcher.openUrl('${app.website}')" title="Site">🔗</button>`:''}`;
+
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay'))
+    document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════════════════════
+function showToast(type, icon, title, msg) {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<div class="toast-icon">${icon}</div><div class="toast-content"><div class="toast-title">${title}</div>${msg?`<div class="toast-msg">${msg}</div>`:''}</div>`;
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 4500);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>

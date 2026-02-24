@@ -1,0 +1,13 @@
+﻿{
+  "name": "firyxis-launcher",
+  "version": "1.0.0",
+  "description": "Firyxis Launcher",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0"
+  }
+}
