@@ -8,7 +8,7 @@ const os = require('os');
 
 const APPS_CONFIG = require('./apps.json');
 
-const LAUNCHER_VERSION = '1.0.0';
+const LAUNCHER_VERSION = '1.1.0';
 const GITHUB_REPO = 'firyx-creation/firyxis-launcher';
 const GITHUB_VERSION_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/version.txt`;
 const GITHUB_RELEASE_URL = `https://github.com/${GITHUB_REPO}`;
