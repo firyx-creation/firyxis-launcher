@@ -1,6 +1,6 @@
 {
   "name": "firyxis-launcher",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Firyxis Launcher",
   "main": "src/main.js",
   "scripts": {
