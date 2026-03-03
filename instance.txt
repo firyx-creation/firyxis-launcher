@@ -1,51 +1,64 @@
 {
   "page_active": true,
-  "name": "🚀 Modpack Optimisé Fabric 1.21.11",
-  "description": "Configuration optimale pour Minecraft 1.21.11 avec Fabric API, Sodium pour les performances, Iris pour les shaders, et support Kotlin. Idéal pour une expérience fluide et personnalisable.",
+  "name": "JP SMP 4",
+  "description": "ModPack pour le serveur JP SMP 4",
   "version": "1.21.11",
   "loader": "fabric",
-  "icon": "https://raw.githubusercontent.com/firyx-creation/firyxis-launcher/main/icons/optimized-pack.png",
+  "icon": "https://raw.githubusercontent.com/firyx-creation/firyxis-launcher/main/icons/default.png",
   "author": "Firyx",
-  "ip": "hypixel.net",
-  "ram": 4096,
+  "ip": "jpsmp4.aternos.me",
+  "ram": "4096",
   "json": {
-    "id": "firyx-optimized-fabric-1-21-11",
-    "name": "Modpack Optimisé Fabric 1.21.11",
+    "id": "p-1772563191249",
+    "name": "JP SMP 4",
     "version": "1.21.11",
     "loader": "fabric",
-    "ram": 4096,
+    "ram": "4096",
     "mods": [
       {
-        "name": "Fabric API",
-        "slug": "fabric-api",
+        "name": "cristellib fabric",
+        "filename": "cristellib-fabric-1.21.11-3.0.4.jar",
         "required": true,
-        "type": "library",
-        "description": "API essentielle pour tous les mods Fabric - OBLIGATOIRE"
+        "type": "mod"
       },
       {
-        "name": "Iris Shaders",
-        "slug": "iris",
-        "required": false,
-        "type": "rendering",
-        "description": "Support des shaders pour des graphismes améliorés (optionnel)"
+        "name": "entity model features",
+        "filename": "entity_model_features_1.21.11-fabric-3.0.12.jar",
+        "required": true,
+        "type": "mod"
       },
       {
-        "name": "Sodium",
-        "slug": "sodium",
+        "name": "fabric api",
+        "filename": "fabric-api-0.141.3+1.21.11.jar",
         "required": true,
-        "type": "optimization",
-        "description": "Optimisation majeure du rendu graphique - RECOMMANDÉ"
+        "type": "mod"
       },
       {
-        "name": "Fabric Language Kotlin",
-        "slug": "fabric-language-kotlin",
+        "name": "iris fabric",
+        "filename": "iris-fabric-1.10.6+mc1.21.11.jar",
         "required": true,
-        "type": "library",
-        "description": "Support du langage Kotlin pour certains mods"
+        "type": "mod"
+      },
+      {
+        "name": "sodium fabric",
+        "filename": "sodium-fabric-0.8.6+mc1.21.11.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "t and t fabric neoforge",
+        "filename": "t_and_t-fabric-neoforge-1.13.8.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "voicechat fabric",
+        "filename": "voicechat-fabric-1.21.11-2.6.12.jar",
+        "required": true,
+        "type": "mod"
       }
     ],
     "resourcepacks": [],
-    "shaderpacks": [],
-    "notes": "Ce modpack est optimisé pour les performances tout en conservant la possibilité d'utiliser des shaders. Sodium est obligatoire pour un gain de FPS significatif. Iris est optionnel mais permet d'utiliser des shaderpacks comme BSL ou Complementary."
+    "shaderpacks": []
   }
 }
