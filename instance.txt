@@ -1,3 +1,51 @@
-page_active = true
-ip = hypixel.net
-json = 
+{
+  "page_active": true,
+  "name": "🚀 Modpack Optimisé Fabric 1.21.11",
+  "description": "Configuration optimale pour Minecraft 1.21.11 avec Fabric API, Sodium pour les performances, Iris pour les shaders, et support Kotlin. Idéal pour une expérience fluide et personnalisable.",
+  "version": "1.21.11",
+  "loader": "fabric",
+  "icon": "https://raw.githubusercontent.com/firyx-creation/firyxis-launcher/main/icons/optimized-pack.png",
+  "author": "Firyx",
+  "ip": "hypixel.net",
+  "ram": 4096,
+  "json": {
+    "id": "firyx-optimized-fabric-1-21-11",
+    "name": "Modpack Optimisé Fabric 1.21.11",
+    "version": "1.21.11",
+    "loader": "fabric",
+    "ram": 4096,
+    "mods": [
+      {
+        "name": "Fabric API",
+        "slug": "fabric-api",
+        "required": true,
+        "type": "library",
+        "description": "API essentielle pour tous les mods Fabric - OBLIGATOIRE"
+      },
+      {
+        "name": "Iris Shaders",
+        "slug": "iris",
+        "required": false,
+        "type": "rendering",
+        "description": "Support des shaders pour des graphismes améliorés (optionnel)"
+      },
+      {
+        "name": "Sodium",
+        "slug": "sodium",
+        "required": true,
+        "type": "optimization",
+        "description": "Optimisation majeure du rendu graphique - RECOMMANDÉ"
+      },
+      {
+        "name": "Fabric Language Kotlin",
+        "slug": "fabric-language-kotlin",
+        "required": true,
+        "type": "library",
+        "description": "Support du langage Kotlin pour certains mods"
+      }
+    ],
+    "resourcepacks": [],
+    "shaderpacks": [],
+    "notes": "Ce modpack est optimisé pour les performances tout en conservant la possibilité d'utiliser des shaders. Sodium est obligatoire pour un gain de FPS significatif. Iris est optionnel mais permet d'utiliser des shaderpacks comme BSL ou Complementary."
+  }
+}
