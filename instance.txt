@@ -62,3 +62,175 @@
     "shaderpacks": []
   }
 }
+{
+  "page_active": true,
+  "name": "Ultra Realist Craft 1.0.0",
+  "description": "Instance Fabric pour Minecraft 1.20.1",
+  "version": "1.20.1",
+  "loader": "fabric",
+  "icon": "",
+  "author": "Firyx",
+  "ip": "",
+  "ram": 4096,
+  "json": {
+    "id": "pack-1793216694611-hzt0g",
+    "name": "Ultra Realist Craft 1.0.0",
+    "version": "1.20.1",
+    "loader": "fabric",
+    "ram": 4096,
+    "mods": [
+      {
+        "name": "AmbientSounds FABRIC v6.3.8 mc1.20.1.jar",
+        "filename": "AmbientSounds_FABRIC_v6.3.8_mc1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "appleskin fabric mc1.20.1",
+        "filename": "appleskin-fabric-mc1.20.1-2.5.2.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "cloth config",
+        "filename": "cloth-config-11.1.136-fabric.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "continuity",
+        "filename": "continuity-3.0.0+1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "CreativeCore FABRIC v2.12.39 mc1.20.1.jar",
+        "filename": "CreativeCore_FABRIC_v2.12.39_mc1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "DistantHorizons",
+        "filename": "DistantHorizons-3.1.2-b-1.20.1-fabric-forge.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "Drip Sounds",
+        "filename": "Drip Sounds-0.5.2+1.20.4-Fabric.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "dynamic fps",
+        "filename": "dynamic-fps-3.11.4+minecraft-1.20.0-fabric.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "entity model features",
+        "filename": "entity_model_features-3.2.4-1.20.1-fabric.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "entity texture features",
+        "filename": "entity_texture_features_1.20.1-fabric-7.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "fabric api",
+        "filename": "fabric-api-0.92.9+1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "fabric language kotlin",
+        "filename": "fabric-language-kotlin-1.13.12+kotlin.2.4.0.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "Geophilic v3.6.mod.jar",
+        "filename": "Geophilic v3.6.mod.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "indium",
+        "filename": "indium-1.0.36+mc1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "iris",
+        "filename": "iris-1.7.6+mc1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "Jade",
+        "filename": "Jade-1.20-Fabric-11.13.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "lambdynamiclights",
+        "filename": "lambdynamiclights-4.4.0+1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "MRU",
+        "filename": "MRU-1.0.4+1.20.1+fabric.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "skinlayers3d fabric",
+        "filename": "skinlayers3d-fabric-1.11.2-mc1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "sodium fabric",
+        "filename": "sodium-fabric-0.5.13+mc1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "Sounds",
+        "filename": "Sounds-2.2.1+1.20.1+fabric.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "ukulib",
+        "filename": "ukulib-0.7.0+1.20.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "waveycapes fabric",
+        "filename": "waveycapes-fabric-1.10.2-mc1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "yet another config lib v3",
+        "filename": "yet_another_config_lib_v3-3.6.6+1.20.1-fabric.jar",
+        "required": true,
+        "type": "mod"
+      },
+      {
+        "name": "zoomify",
+        "filename": "zoomify-2.15.2+1.20.1.jar",
+        "required": true,
+        "type": "mod"
+      }
+    ],
+    "resourcepacks": [],
+    "shaderpacks": []
+  }
+}
