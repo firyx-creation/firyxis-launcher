@@ -4,7 +4,7 @@
   "description": "Instance Fabric pour Minecraft 1.20.1",
   "version": "1.20.1",
   "loader": "fabric",
-  "icon": "realistic.png",
+  "icon": "icons/realistic.png",
   "author": "Firyx",
   "ip": "",
   "ram": "4096",
